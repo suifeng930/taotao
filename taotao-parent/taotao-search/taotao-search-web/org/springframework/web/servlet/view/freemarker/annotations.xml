@@ -1,0 +1,5 @@
+<root>
+    <item name='org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer freemarker.template.Configuration getConfiguration()'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+</root>

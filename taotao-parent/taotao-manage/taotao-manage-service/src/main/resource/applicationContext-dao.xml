@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+    <!-- 数据源 -->
+    <!-- 数据库连接池 -->
+    <context:property-placeholder location="classpath:*.properties"  ignore-unresolvable="true" />
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+          destroy-method="close">
+        <property name="url" value="${jdbc.url}" />
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
+        <property name="driverClassName" value="${jdbc.driver}" />
+        <!--<property name="url" value="jdbc:mysql://localhost:3306/taotao?serverTimezone=Hongkong&amp;useUnicode=true&amp;characterEncoding=utf8&amp;useSSL=false" />-->
+        <!--<property name="username" value="root" />-->
+        <!--<property name="password" value="123456" />-->
+        <!--<property name="driverClassName" value="com.mysql.cj.jdbc.Driver" />-->
+        <property name="maxActive" value="10" />
+        <property name="minIdle" value="5" />
+    </bean>
+    <!-- sqlsessionfactory -->
+    <!-- 让spring管理sqlsessionfactory 使用mybatis和spring整合包中的 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!-- 数据库连接池 -->
+        <property name="dataSource" ref="dataSource" />
+        <!-- 加载mybatis的全局配置文件 -->
+        <property name="configLocation" value="classpath:mybatis-config.xml" />
+    </bean>
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.taotao.mapper" />
+    </bean>
+    <!-- (事务管理)transaction manager, use JtaTransactionManager for global tx -->
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <!-- 配置事务通知属性 -->
+    <tx:advice id="txAdvice">
+        <!-- 定义事务传播属性 -->
+        <tx:attributes>
+            <tx:method name="insert*"/>
+            <tx:method name="update*"/>
+            <tx:method name="upd*"/>
+            <tx:method name="edit*"/>
+            <tx:method name="save*"/>
+            <tx:method name="add*"/>
+            <tx:method name="new*"/>
+            <tx:method name="set*"/>
+            <tx:method name="remove*"/>
+            <tx:method name="delete*"/>
+            <tx:method name="del*"/>
+            <tx:method name="change*"/>
+            <tx:method name="check*"/>
+            <tx:method name="get*" read-only="true"/>
+            <tx:method name="search*" read-only="true"/>
+            <tx:method name="find*" read-only="true"/>
+            <tx:method name="load*" read-only="true"/>
+            <tx:method name="*" read-only="true"/>
+        </tx:attributes>
+    </tx:advice>
+    <!-- 切面 -->
+    <!--<aop:config proxy-target-class="true"></aop:config>-->
+    <aop:config>
+        <aop:advisor advice-ref="txAdvice"
+                     pointcut="execution(* com.taotao.service.*.*(..))" />
+    </aop:config>
+
+</beans>
